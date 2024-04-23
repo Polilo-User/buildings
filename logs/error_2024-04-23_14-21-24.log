@@ -1,0 +1,3 @@
+
+
+time="2024-04-23 14:22:09" level="error" msg="json: cannot unmarshal object into Go value of type []model.Buildings" path="/Users/Polilo/Desktop/mobileAppBack/buildings/functions/middleware/response.go:22" 
