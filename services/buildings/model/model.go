@@ -1,9 +1,10 @@
 package model
 
 type Filters struct {
-	PassDate  string
-	PriceFrom int64
-	PriceTo   int64
+	Cvartal   int   `json:"cvartal"`
+	Year      int   `json:"year"`
+	PriceFrom int64 `json:"priceFrom"`
+	PriceTo   int64 `json:"priceTo"`
 }
 
 type Buildings struct {

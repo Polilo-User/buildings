@@ -11,7 +11,7 @@ import (
 
 func GetBuildingsByFilter(repo *repository, filters string) (*model.GetBuildingsByFilterResponse, error) {
 	var buildings []model.Buildings
-	req := "SELECT id, \"name\", \"imgUrl\" FROM buildings b " + filters
+	req := `SELECT b.id, b."name", b."imgUrl" FROM buildings b ` + filters
 	buildingsData, err := functions.Query2(repo.db, req)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
@@ -39,16 +39,22 @@ func GetBuildingsByFilter(repo *repository, filters string) (*model.GetBuildings
 func getFilters(filters model.Filters) (res string) {
 	count := 0
 	if filters.PriceFrom != 0 || filters.PriceTo != 0 {
-		res += fmt.Sprintf("INNER JOIN rooms r ON b.id = r.building_id WHERE price > %d and price < %d", filters.PriceFrom, filters.PriceTo)
+		res += fmt.Sprintf("LEFT JOIN rooms r ON b.id = r.building_id WHERE price > %d and price < %d", filters.PriceFrom, filters.PriceTo)
 		count += 1
 	}
-	if filters.PassDate != "" {
+
+	if filters.Cvartal != 0 && filters.Year != 0 {
 		if count == 0 {
-			res += "WHERE passDt = " + filters.PassDate
+			res += fmt.Sprintf("where EXTRACT(QUARTER FROM b.passdt) = %d AND EXTRACT(year FROM b.passdt) = %d ", filters.Cvartal, filters.Year)
+			count += 1
 		} else {
-			res += "AND passDt = " + filters.PassDate
+			res += fmt.Sprintf(" AND EXTRACT(QUARTER FROM b.passdt) = %d AND EXTRACT(year FROM b.passdt) = %d ", filters.Cvartal, filters.Year)
+			count += 1
 		}
-		count += 1
+	}
+
+	if filters.PriceFrom != 0 {
+		res += ` group by b.id, b.name, b."imgUrl" `
 	}
 	return res
 }
