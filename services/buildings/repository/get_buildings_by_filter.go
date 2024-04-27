@@ -2,6 +2,7 @@ package repository
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/Polilo-User/buildings/functions"
 	"github.com/Polilo-User/buildings/functions/errors"
@@ -10,7 +11,7 @@ import (
 
 func GetBuildingsByFilter(repo *repository, filters string) (*model.GetBuildingsByFilterResponse, error) {
 	var buildings []model.Buildings
-	req := "SELECT id, \"name\", \"imgUrl\" FROM buildings" + filters
+	req := "SELECT id, \"name\", \"imgUrl\" FROM buildings b " + filters
 	buildingsData, err := functions.Query2(repo.db, req)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
@@ -35,6 +36,19 @@ func GetBuildingsByFilter(repo *repository, filters string) (*model.GetBuildings
 	return res, nil
 }
 
-func getFilters(model.Filters) string {
-	return ""
+func getFilters(filters model.Filters) (res string) {
+	count := 0
+	if filters.PriceFrom != 0 || filters.PriceTo != 0 {
+		res += fmt.Sprintf("INNER JOIN rooms r ON b.id = r.building_id WHERE price > %d and price < %d", filters.PriceFrom, filters.PriceTo)
+		count += 1
+	}
+	if filters.PassDate != "" {
+		if count == 0 {
+			res += "WHERE passDt = " + filters.PassDate
+		} else {
+			res += "AND passDt = " + filters.PassDate
+		}
+		count += 1
+	}
+	return res
 }

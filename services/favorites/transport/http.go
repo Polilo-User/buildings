@@ -35,12 +35,33 @@ func NewService(svcEndpoints Endpoints, logger *logging.Logger) http.Handler {
 		options...,
 	))
 
+	r.Methods("POST").Path("/favorites/setFavorites").Handler(kithttp.NewServer(
+		svcEndpoints.SetFavorites,
+		decodeSetFavoritesRequest,
+		response.EncodeResponse,
+		options...,
+	))
+
 	return r
 }
 
 func decodeGetFavoritesRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
 
 	var req model.GetFavoritesRequest
+	err = json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		return nil, errors.BadRequest.Wrap(err)
+	}
+	err = val.ValidateHttpReq(req, "")
+	if err != nil {
+		return nil, errors.UnprocessableEntity.NewCtx("Отсутствуют обязательные поля!", err.Error())
+	}
+	return req, nil
+}
+
+func decodeSetFavoritesRequest(_ context.Context, r *http.Request) (request interface{}, err error) {
+
+	var req model.SetFavoritesRequest
 	err = json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
 		return nil, errors.BadRequest.Wrap(err)

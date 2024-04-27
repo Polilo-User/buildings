@@ -7,9 +7,9 @@ import (
 )
 
 type NewsService interface {
-	GetNews(ctx context.Context, request model.GetNewsRequest) (*model.GetNewsResponse, error)
+	GetNews(ctx context.Context) (*model.GetNewsResponse, error)
 }
 
 type NewsRepo interface {
-	GetNews(ctx context.Context, request model.GetNewsRequest) (*model.GetNewsResponse, error)
+	GetNews(ctx context.Context) (*model.GetNewsResponse, error)
 }

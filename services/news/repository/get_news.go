@@ -5,31 +5,31 @@ import (
 
 	"github.com/Polilo-User/buildings/functions"
 	"github.com/Polilo-User/buildings/functions/errors"
-	"github.com/Polilo-User/buildings/services/favorites/model"
+	"github.com/Polilo-User/buildings/services/news/model"
 )
 
-func GetFavorites(repo *repository) (res *model.GetFavoritesResponse, err error) {
-	var rooms []model.Apartaments
-	req := `SELECT coalesce(id, 0), coalesce("room_id", ''), coalesce("user_id", '') FROM favorites`
-	favoritesData, err := functions.Query2(repo.db, req)
+func GetNews(repo *repository) (*model.GetNewsResponse, error) {
+	var news []model.News
+	req := "SELECT id, \"name\", \"imgUrl\", \"dtCreate\" FROM news"
+	newsData, err := functions.Query2(repo.db, req)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}
-	if len(favoritesData) == 0 {
+	if len(newsData) == 0 {
 		return nil, errors.NotFound.New("не смогли найти данные в БД")
 	}
 	// Парсим в структуру данные об установке очистки
-	favoritesJson, err := json.Marshal(favoritesData)
+	newsJson, err := json.Marshal(newsData)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}
-	err = json.Unmarshal(favoritesJson, &rooms)
+	err = json.Unmarshal(newsJson, &news)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
 	}
 
-	res = &model.GetFavoritesResponse{
-		Data: rooms,
+	res := &model.GetNewsResponse{
+		Data: news,
 	}
 
 	return res, nil

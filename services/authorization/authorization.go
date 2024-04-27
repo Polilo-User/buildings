@@ -21,7 +21,7 @@ type AuthService interface {
 
 type AuthRepo interface {
 	SetSession(ctx context.Context, StuffId string, session Session) error
-	GetStuffByUsernameAndPassord(ctx context.Context, Username, Password string) (string, string, string, string, string, string, []string, error)
+	GetStuffByPhone(ctx context.Context, phoneNumber int, password string) (string, string, error)
 	GetStuffByRefreshToken(ctx context.Context, refreshToken string) (string, error)
 	ChangePassword(ctx context.Context, stuffId, password string) error
 }

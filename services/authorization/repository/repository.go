@@ -26,51 +26,44 @@ func New(db *sql.DB, logger *logging.Logger) authsvc.AuthRepo {
 	}
 }
 
-func (repo *repository) GetStuffByUsernameAndPassord(ctx context.Context, username, password string) (string, string, string, string, string, string, []string, error) {
-	roles := []string{}
-	req := functions.AdaptReq("SELECT sm.id, sm.status, sm.\"isActive\" , sm.\"jobTitle\", f.url, smr.\"roleSignatura\", sm.fio FROM su_members sm inner join su_member2roles smr on sm.id = smr.\"memberId\" left join files f on sm.\"stuffPhoto\" = f.id WHERE sm.\"userName\"=? and sm.\"password\"=?")
-	stuffData, err := functions.Query2(repo.db, req, username, password)
+func (repo *repository) GetStuffByPhone(ctx context.Context, phoneNumber int, password string) (string, string, error) {
+	req := `SELECT u.id, u."fullName" FROM users u WHERE u."phoneNumber" = $1 AND u.password = $2`
+	stuffData, err := functions.Query2(repo.db, req, phoneNumber, password)
 	if err != nil {
-		return "", "", "", "", "", "", nil, errors.InternalServer.Wrap(err)
+		return "", "", errors.InternalServer.Wrap(err)
 	}
 	if len(stuffData) == 0 {
-		return "", "", "", "", "", "", nil, errors.Teapot.NewCtx("не смогли найти пользователя с таким логином/паролем", "username:%v", username)
+		return "", "", errors.Teapot.NewCtx("не смогли найти пользователя с таким номером телефона", "username:%v", phoneNumber)
 	}
 	stuffId := functions.Intf2str(stuffData[0]["id"])
-	status := functions.Intf2str(stuffData[0]["status"])
-	isActive := functions.Intf2str(stuffData[0]["isActive"])
-	fio := functions.Intf2str(stuffData[0]["fio"])
-	jobTitle := functions.Intf2str(stuffData[0]["jobTitle"])
-	stuffPhoto := functions.Intf2str(stuffData[0]["url"])
-	for _, val := range stuffData {
-		roles = append(roles, functions.Intf2str(val["roleSignatura"]))
-	}
-	return stuffId, status, isActive, fio, stuffPhoto, jobTitle, roles, nil
+	fullName := functions.Intf2str(stuffData[0]["fullName"])
+
+	return stuffId, fullName, nil
 }
 
 func (repo *repository) SetSession(ctx context.Context, stuffId string, session authsvc.Session) error {
-	data, err := functions.Query2(repo.db, functions.AdaptReq("SELECT * FROM \"su_sessionTokens\" s WHERE s.\"memberId\"=?"), stuffId)
+	data, err := functions.Query2(repo.db, `SELECT * FROM "sessiontokens" s WHERE s."user_id"=$1`, stuffId)
 	if err != nil {
 		return errors.InternalServer.Wrap(err)
 	}
 	if len(data) == 0 {
-		req := functions.AdaptReq("insert into \"su_sessionTokens\" (\"memberId\",\"code\",\"updateDt\") values (?,?,?)")
+		req := functions.AdaptReq(`insert into "sessiontokens" ("user_id","code","updated") values ($1,$2,now())`)
 		stmt2, err := repo.db.Prepare(req)
 		if err != nil {
 			return errors.InternalServer.Wrap(err)
 		}
-		_, err = stmt2.Exec(stuffId, session.RefreshToken, session.UpdateDt) // Запускаем инсерт
+		_, err = stmt2.Exec(stuffId, session.RefreshToken) // Запускаем инсерт
 		if err != nil {
 			return errors.InternalServer.Wrap(err)
 		}
 		defer stmt2.Close()
 	} else {
-		req := functions.AdaptReq("update \"su_sessionTokens\" set \"code\"=?,\"updateDt\"=? where \"memberId\"=?")
+		req := functions.AdaptReq(`update "sessiontokens" set \"code\"=$1,"updated"=now() where "user_id"=$2`)
 		stmt2, err := repo.db.Prepare(req)
 		if err != nil {
 			return errors.InternalServer.Wrap(err)
 		}
-		_, err = stmt2.Exec(session.RefreshToken, session.UpdateDt, stuffId) // Запускаем инсерт
+		_, err = stmt2.Exec(session.RefreshToken, stuffId) // Запускаем инсерт
 		if err != nil {
 			return errors.InternalServer.Wrap(err)
 		}
@@ -80,15 +73,15 @@ func (repo *repository) SetSession(ctx context.Context, stuffId string, session 
 }
 
 func (repo *repository) GetStuffByRefreshToken(ctx context.Context, refreshToken string) (string, error) {
-	stuffData, err := functions.Query2(repo.db, functions.AdaptReq("SELECT * FROM su_members s INNER JOIN \"su_sessionTokens\" st on s.\"id\"=st.\"memberId\" WHERE st.\"code\"=?"), refreshToken)
+	stuffData, err := functions.Query2(repo.db, `SELECT * FROM users u INNER JOIN "sessiontokens" st on u."id"=u."userId" WHERE st."code"=$1`, refreshToken)
 	if err != nil {
 		return "", errors.InternalServer.Wrap(err)
 	}
 	if len(stuffData) == 0 {
 		return "", errors.NotFound.New("Не смогли найти данные пользователя")
 	}
-	stuffId := functions.Intf2str(stuffData[0]["memberId"])
-	expDateStr := functions.Intf2str(stuffData[0]["updateDt"])
+	stuffId := functions.Intf2str(stuffData[0]["user_id"])
+	expDateStr := functions.Intf2str(stuffData[0]["updated"])
 	expDate, err := time.Parse("2006-01-02 15:04:05 +0000 UTC", expDateStr)
 	//expDate, err := time.ParseInLocation("2006-01-02 15:04:05", expDateStr, time.Local)
 	if err != nil {
@@ -102,7 +95,7 @@ func (repo *repository) GetStuffByRefreshToken(ctx context.Context, refreshToken
 
 // Изменить пароль пользователя
 func (repo *repository) ChangePassword(ctx context.Context, stuffId, password string) error {
-	req := functions.AdaptReq("UPDATE su_members SET \"password\" = ?, \"status\" = null where \"id\" = ?")
+	req := "UPDATE users SET \"password\" = $1 where \"id\" = $2"
 	stmt2, err := repo.db.Prepare(req)
 	if err != nil {
 		return errors.InternalServer.Wrap(err)

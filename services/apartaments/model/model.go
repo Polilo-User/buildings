@@ -1,14 +1,23 @@
 package model
 
 type Apart struct {
-	Name string `json:"name"`
+	Id    int    `json:"id"`
+	Name  string `json:"name"`
+	Price int    `json:"price"`
+	Area  int64  `json:"area"`
+	Floor int64  `json:"floor"`
 }
 
 type Filters struct {
+	Area         int64 `json:"area"`
+	CountOfRooms int64 `json:"rooms"`
+	Floor        int64 `json:"floor"`
+	PriceFrom    int64 `json:"priceFrom"`
+	PriceTo      int64 `json:"priceTo"`
 }
 
 type GetApartByFilterRequest struct {
-	Filter Filters `json:"filter"`
+	Filter Filters `json:"filters"`
 }
 type GetApartByFilterResponse struct {
 	Data []Apart `json:"data"`

@@ -23,6 +23,6 @@ func NewService(rep newssvc.NewsRepo, logger *logging.Logger) newssvc.NewsServic
 	}
 }
 
-func (s *service) GetNews(ctx context.Context, request model.GetNewsRequest) (*model.GetNewsResponse, error) {
-	return s.repository.GetNews(ctx, request)
+func (s *service) GetNews(ctx context.Context) (*model.GetNewsResponse, error) {
+	return s.repository.GetNews(ctx)
 }

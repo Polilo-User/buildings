@@ -23,6 +23,6 @@ func New(db *sql.DB, logger *logging.Logger) newssvc.NewsRepo {
 	}
 }
 
-func (repo *repository) GetNews(ctx context.Context, request model.GetNewsRequest) (*model.GetNewsResponse, error) {
-	return nil, nil
+func (repo *repository) GetNews(ctx context.Context) (*model.GetNewsResponse, error) {
+	return GetNews(repo)
 }

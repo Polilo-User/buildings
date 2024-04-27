@@ -1,10 +1,10 @@
 package model
 
 type News struct {
-	Name string `json:"name"`
+	Id     int    `json:"id"`
+	Name   string `json:"name"`
+	ImgUrl string `json:"imgUrl"`
 }
-
-type GetNewsRequest struct{}
 
 type GetNewsResponse struct {
 	Data []News `json:"data"`

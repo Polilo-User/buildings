@@ -28,7 +28,7 @@ func NewService(rep authsvc.AuthRepo, logger *logging.Logger) authsvc.AuthServic
 }
 
 func (s *service) Login(ctx context.Context, input model.LoginReq) (res model.Tokens, err error) {
-	stuffId, status, isActive, fio, stuffPhoto, jobTitle, roles, err := s.repository.GetStuffByUsernameAndPassord(ctx, input.Username, input.Password)
+	stuffId, fullName, err := s.repository.GetStuffByPhone(ctx, input.PhoneNumber, input.Password)
 	if err != nil {
 		return res, err
 	}
@@ -36,8 +36,7 @@ func (s *service) Login(ctx context.Context, input model.LoginReq) (res model.To
 	if err != nil {
 		return res, err
 	}
-	tokens.Status, tokens.IsActive, tokens.Fio, tokens.StuffPhoto, tokens.JobTitle = status, isActive, fio, stuffPhoto, jobTitle
-	tokens.Roles = roles
+	tokens.Fio = fullName
 	return tokens, nil
 }
 

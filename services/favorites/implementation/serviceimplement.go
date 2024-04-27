@@ -26,3 +26,11 @@ func NewService(rep favoritessvc.FavoritesRepo, logger *logging.Logger) favorite
 func (s *service) GetFavorites(ctx context.Context, request model.GetFavoritesRequest) (*model.GetFavoritesResponse, error) {
 	return s.repository.GetFavorites(ctx, request)
 }
+
+func (s *service) SetFavorites(ctx context.Context, request model.SetFavoritesRequest) error {
+	if request.Favorite {
+		return s.repository.SetFavorites(ctx, request)
+	} else {
+		return s.repository.DeleteFavorite(ctx, request)
+	}
+}

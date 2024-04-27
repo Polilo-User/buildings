@@ -1,6 +1,9 @@
 package model
 
 type Filters struct {
+	PassDate  string
+	PriceFrom int64
+	PriceTo   int64
 }
 
 type Buildings struct {

@@ -6,8 +6,8 @@ import (
 )
 
 type LoginReq struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
+	PhoneNumber int    `json:"phone" binding:"required"`
+	Password    string `json:"password" binding:"required"`
 }
 
 type LoginResponse struct {
@@ -15,14 +15,9 @@ type LoginResponse struct {
 }
 
 type Tokens struct {
-	AccessToken  string   `json:"accessToken"`
-	RefreshToken string   `json:"refreshToken"`
-	Status       string   `json:"status,omitempty"`
-	IsActive     string   `json:"isActive"`
-	Fio          string   `json:"fio"`
-	JobTitle     string   `json:"jobTitle"`
-	StuffPhoto   string   `json:"stuffPhoto"`
-	Roles        []string `json:"roles"`
+	AccessToken  string `json:"accessToken"`
+	RefreshToken string `json:"refreshToken"`
+	Fio          string `json:"fio"`
 }
 
 type RefreshTokensRequest struct {

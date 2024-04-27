@@ -3,8 +3,6 @@ package transport
 import (
 	"context"
 
-	"github.com/Polilo-User/buildings/services/news/model"
-
 	news "github.com/Polilo-User/buildings/services/news"
 
 	"github.com/go-kit/kit/endpoint"
@@ -23,6 +21,6 @@ func MakeEndpoints(s news.NewsService) Endpoints {
 
 func makeGetBuildingsByFilter(s news.NewsService) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (interface{}, error) {
-		return s.GetNews(ctx, request.(model.GetNewsRequest))
+		return s.GetNews(ctx)
 	}
 }

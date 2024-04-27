@@ -9,3 +9,9 @@ type GetFavoritesRequest struct {
 type GetFavoritesResponse struct {
 	Data []Apartaments `json:"data"`
 }
+
+type SetFavoritesRequest struct {
+	UserId   int  `json:"user_id"`
+	RoomId   int  `json:"room_id"`
+	Favorite bool `json:"favorite"`
+}
