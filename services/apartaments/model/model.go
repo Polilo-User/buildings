@@ -1,11 +1,12 @@
 package model
 
 type Apart struct {
-	Id    int    `json:"id"`
-	Name  string `json:"name"`
-	Price int    `json:"price"`
-	Area  int64  `json:"area"`
-	Floor int64  `json:"floor"`
+	Id           int    `json:"id"`
+	Name         string `json:"name"`
+	Price        int    `json:"price"`
+	Area         int64  `json:"area"`
+	Floor        int64  `json:"floor"`
+	CountOfRooms int64  `json:"countOfRooms"`
 }
 
 type Filters struct {

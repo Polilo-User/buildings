@@ -11,7 +11,7 @@ import (
 
 func GetBuildingsByFilter(repo *repository, filters string) (*model.GetBuildingsByFilterResponse, error) {
 	var buildings []model.Buildings
-	req := `SELECT b.id, b."name", b."imgUrl" FROM buildings b ` + filters
+	req := `SELECT b.id, b."name", b."imgUrl", EXTRACT(QUARTER FROM b.passdt) as cvartal, MIN(r.price) as price FROM buildings b ` + filters
 	buildingsData, err := functions.Query2(repo.db, req)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
@@ -54,7 +54,7 @@ func getFilters(filters model.Filters) (res string) {
 	}
 
 	if filters.PriceFrom != 0 {
-		res += ` group by b.id, b.name, b."imgUrl" `
+		res += ` group by b.id, b.name, b."imgUrl", cvartal`
 	}
 	return res
 }
