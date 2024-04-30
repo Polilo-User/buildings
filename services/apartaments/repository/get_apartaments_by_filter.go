@@ -62,8 +62,13 @@ func getFilters(filters model.Filters) (res string) {
 	}
 
 	if filters.PriceFrom != 0 || filters.PriceTo != 0 {
-		res += fmt.Sprintf(" INNER JOIN rooms r  WHERE price > %d and price < %d", filters.PriceFrom, filters.PriceTo)
-		count += 1
+		if count == 0 {
+			res += fmt.Sprintf(" WHERE price > %d and price < %d", filters.PriceFrom, filters.PriceTo)
+			count += 1
+		} else {
+			res += fmt.Sprintf(" AND price > %d and price < %d", filters.PriceFrom, filters.PriceTo)
+			count += 1
+		}
 	}
 
 	return res
