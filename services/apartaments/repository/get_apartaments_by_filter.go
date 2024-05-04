@@ -11,7 +11,8 @@ import (
 
 func GetApartamentsByFilter(repo *repository, filters string) (*model.GetApartByFilterResponse, error) {
 	var apartaments []model.Apart
-	req := `SELECT coalesce(id, 0) as id,  coalesce(name, '') as name, coalesce(price, 0) as price, coalesce(area, 0) as area, coalesce(floor, 0) as floor FROM rooms` + filters
+	req := `SELECT coalesce(id, 0) as id,  coalesce(name, '') as name, coalesce(price, 0) as price, coalesce(area, 0) as area,
+	 coalesce(floor, 0) as floor, building_id, countofrooms FROM rooms` + filters
 	apartamentsData, err := functions.Query2(repo.db, req)
 	if err != nil {
 		return nil, errors.InternalServer.Wrap(err)
@@ -38,9 +39,18 @@ func GetApartamentsByFilter(repo *repository, filters string) (*model.GetApartBy
 
 func getFilters(filters model.Filters) (res string) {
 	count := 0
-	if filters.Area != 0 {
-		res += fmt.Sprintf(" WHERE area = %d", filters.Area)
+	if filters.BuildingId != 0 {
+		res += fmt.Sprintf(" WHERE building_id = %d", filters.BuildingId)
 		count += 1
+	}
+	if filters.Area != 0 {
+		if count == 0 {
+			res += fmt.Sprintf(" WHERE area = %d", filters.Area)
+			count += 1
+		} else {
+			res += fmt.Sprintf(" AND area = %d", filters.CountOfRooms)
+			count += 1
+		}
 	}
 	if filters.CountOfRooms != 0 {
 		if count == 0 {

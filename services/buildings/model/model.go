@@ -13,6 +13,7 @@ type Buildings struct {
 	ImgUrl    string `json:"imgUrl"`
 	Cvartal   string `json:"cvartal"`
 	PriceFrom int    `json:"price"`
+	Year      string `json:"year"`
 }
 
 type GetBuildingsByFilterRequest struct {

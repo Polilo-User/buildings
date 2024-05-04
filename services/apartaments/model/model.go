@@ -7,6 +7,7 @@ type Apart struct {
 	Area         int64  `json:"area"`
 	Floor        int64  `json:"floor"`
 	CountOfRooms int64  `json:"countOfRooms"`
+	BuildingId   int64  `json:"building_id"`
 }
 
 type Filters struct {
@@ -15,6 +16,7 @@ type Filters struct {
 	Floor        int64 `json:"floor"`
 	PriceFrom    int64 `json:"priceFrom"`
 	PriceTo      int64 `json:"priceTo"`
+	BuildingId   int64 `json:"building_id"`
 }
 
 type GetApartByFilterRequest struct {
